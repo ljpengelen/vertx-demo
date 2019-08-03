@@ -1,5 +1,9 @@
 # Guided Tour of Vert.x
 
+This app demonstrates part of the [Vert.x framework](https://vertx.io/).
+It listens for incoming connections on port 8080 and echos the request body in all caps.
+Run the app, and execute `curl localhost:8080 -d "no touching"` to see it in action.
+
 ## Prerequisites
 
 For development, you need [Java 11](https://openjdk.java.net/projects/jdk/11/).
