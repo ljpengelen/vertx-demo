@@ -31,7 +31,7 @@ class ScreamingEchoServiceVerticleTest {
     @DisplayName("Returns NOK given unknown identifier")
     public void returnsNokGivenUnknownId(VertxTestContext vertxTestContext) {
         netClient.connect(3002, "localhost", asyncSocket -> {
-            vertxTestContext.verify(() -> asyncSocket.succeeded());
+            vertxTestContext.verify(() -> assertThat(asyncSocket.succeeded()).isTrue());
             var socket = asyncSocket.result();
             socket.handler(buffer -> {
                 vertxTestContext.verify(() -> {
