@@ -34,18 +34,6 @@ class TcpClientVerticleTest {
     }
 
     @Test
-    @DisplayName("Authenticates with authentication service")
-    public void authenticatesWithAuthService(Vertx vertx, VertxTestContext vertxTestContext) {
-        authService.connectHandler(socket ->
-                socket.handler(buffer -> {
-                    vertxTestContext.completeNow();
-                }));
-        authService.listen(3001, "localhost");
-
-        vertx.eventBus().send(REQUEST_ADDRESS, INPUT_OBJECT);
-    }
-
-    @Test
     @DisplayName("Replies with failure if authentication fails")
     public void repliesWithFailure(Vertx vertx, VertxTestContext vertxTestContext) {
         authService.connectHandler(socket ->
