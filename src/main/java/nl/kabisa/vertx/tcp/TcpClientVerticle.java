@@ -38,29 +38,29 @@ public class TcpClientVerticle extends AbstractVerticle {
                                 var echoSocket = asyncEchoSocket.result();
                                 echoSocket.handler(echoBuffer -> {
                                     if (echoBuffer.getByte(0) == 0) {
-                                        event.fail(0, "Unauthenticated");
+                                        event.fail(500, "Unauthenticated");
                                     } else if (echoBuffer.getByte(0) == 1) {
                                         event.reply(echoBuffer.getBuffer(1, echoBuffer.length()));
                                     } else {
-                                        event.fail(0, "Unexpected response from echo service");
+                                        event.fail(500, "Unexpected response from echo service");
                                     }
                                 });
                                 echoSocket.write(Buffer.buffer(Bytes.concat(id, event.body().getBytes())));
                             } else {
                                 String errorMessage = "Unable to obtain socket for echo service";
                                 LOGGER.error(errorMessage, asyncEchoSocket.cause());
-                                event.fail(0, errorMessage);
+                                event.fail(500, errorMessage);
                             }
                         });
                     } else {
-                        event.fail(0, "Unexpected response from authentication service");
+                        event.fail(500, "Unexpected response from authentication service");
                     }
                 });
                 authSocket.write(Buffer.buffer(new byte[] { 1, 2, 3, 4 }));
             } else {
                 String errorMessage = "Unable to obtain socket for authentication service";
                 LOGGER.error(errorMessage, asyncAuthSocket.cause());
-                event.fail(0, errorMessage);
+                event.fail(500, errorMessage);
             }
         });
     }

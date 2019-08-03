@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpServerOptions;
 import nl.kabisa.vertx.tcp.TcpClientVerticle;
 
@@ -32,8 +33,9 @@ public class HttpServerVerticle extends AbstractVerticle {
                     if (reply.succeeded()) {
                         request.response().end(reply.result().body().toString());
                     } else {
-                        LOGGER.error("Unable to receive response from TCP client", reply.cause());
-                        request.response().setStatusCode(500).end();
+                        var cause = (ReplyException) reply.cause();
+                        LOGGER.error("Unable to receive response from TCP client", cause);
+                        request.response().setStatusCode(cause.failureCode()).end();
                     }
                 });
             });
