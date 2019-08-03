@@ -6,11 +6,13 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.primitives.Bytes;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.NetClient;
+import io.vertx.core.net.NetSocket;
 
 public class TcpClientVerticle extends AbstractVerticle {
 
@@ -22,48 +24,71 @@ public class TcpClientVerticle extends AbstractVerticle {
     private NetClient authClient;
     private NetClient echoClient;
 
-    private void handleEvent(Message<JsonObject> event) {
-        authClient.connect(3001, "localhost", asyncAuthSocket -> {
-            if (asyncAuthSocket.succeeded()) {
-                var authSocket = asyncAuthSocket.result();
-                authSocket.handler(authBuffer -> {
-                    if (authBuffer.getByte(0) == 0) {
-                        event.fail(0, "Invalid credentials");
-                    } else if (authBuffer.getByte(0) == 2) {
-                        event.fail(0, "Unexpected error");
-                    } else if (authBuffer.getByte(0) == 1) {
-                        var id = authBuffer.getBytes(1, authBuffer.length());
+    private Future<NetSocket> connectToAuthService() {
+        Future<NetSocket> future = Future.future();
 
-                        echoClient.connect(3002, "localhost", asyncEchoSocket -> {
-                            if (asyncEchoSocket.succeeded()) {
-                                var echoSocket = asyncEchoSocket.result();
-                                echoSocket.handler(echoBuffer -> {
-                                    if (echoBuffer.getByte(0) == 0) {
-                                        event.fail(500, "Unauthenticated");
-                                    } else if (echoBuffer.getByte(0) == 1) {
-                                        event.reply(echoBuffer.getBuffer(1, echoBuffer.length()));
-                                    } else {
-                                        event.fail(500, "Unexpected response from echo service");
-                                    }
-                                });
-                                echoSocket.write(Buffer.buffer(Bytes.concat(id, event.body().getString("body").getBytes())));
-                            } else {
-                                String errorMessage = "Unable to obtain socket for echo service";
-                                LOGGER.error(errorMessage, asyncEchoSocket.cause());
-                                event.fail(500, errorMessage);
-                            }
-                        });
-                    } else {
-                        event.fail(500, "Unexpected response from authentication service");
-                    }
-                });
-                authSocket.write(Buffer.buffer(new byte[] { 1, 2, 3, 4 }));
+        authClient.connect(3001, "localhost", future);
+
+        return future;
+    }
+
+    private Future<Buffer> authenticate(NetSocket authSocket) {
+        Future<Buffer> future = Future.future();
+
+        authSocket.handler(authBuffer -> {
+            if (authBuffer.getByte(0) == 0) {
+                future.fail("Invalid credentials");
+            } else if (authBuffer.getByte(0) == 2) {
+                future.fail("Unexpected error");
+            } else if (authBuffer.getByte(0) == 1) {
+                future.complete(authBuffer.getBuffer(1, authBuffer.length()));
             } else {
-                String errorMessage = "Unable to obtain socket for authentication service";
-                LOGGER.error(errorMessage, asyncAuthSocket.cause());
-                event.fail(500, errorMessage);
+                future.fail("Unexpected response from authentication service");
             }
         });
+
+        authSocket.write(Buffer.buffer(new byte[] { 1, 2, 3, 4 }));
+
+        return future;
+    }
+
+    private Future<NetSocket> connectToEchoClient() {
+        Future<NetSocket> future = Future.future();
+
+        echoClient.connect(3002, "localhost", future);
+
+        return future;
+    }
+
+    private Future<Buffer> forwardToEchoClient(NetSocket echoSocket, Buffer token, String input) {
+        Future<Buffer> future = Future.future();
+
+        echoSocket.handler(echoBuffer -> {
+            if (echoBuffer.getByte(0) == 0) {
+                future.fail("Unauthenticated");
+            } else if (echoBuffer.getByte(0) == 1) {
+                future.complete(echoBuffer.getBuffer(1, echoBuffer.length()));
+            } else {
+                future.fail("Unexpected response from echo service");
+            }
+        });
+        echoSocket.write(Buffer.buffer(Bytes.concat(token.getBytes(), input.getBytes())));
+
+        return future;
+    }
+
+    private void handleEvent(Message<JsonObject> event) {
+        connectToAuthService()
+                .compose(this::authenticate)
+                .compose(token -> connectToEchoClient()
+                        .compose(socket -> forwardToEchoClient(socket, token, event.body().getString("body"))))
+                .setHandler(asyncBuffer -> {
+                    if (asyncBuffer.succeeded()) {
+                        event.reply(asyncBuffer.result());
+                    } else {
+                        event.fail(500, asyncBuffer.cause().getMessage());
+                    }
+                });
     }
 
     @Override
