@@ -27,15 +27,15 @@ public class Application {
         CompositeFuture.all(
                 deploy(vertx, new AuthServiceVerticle()),
                 deploy(vertx, new ScreamingEchoServiceVerticle()),
-                deploy(vertx, new TcpClientVerticle())).compose(
-                s -> deploy(vertx, new HttpServerVerticle())).setHandler(
-                s -> {
-                    if (s.succeeded()) {
-                        LOGGER.info("All verticles started successfully");
-                    } else {
-                        LOGGER.error("Failed to deploy all verticles", s.cause());
-                    }
-                }
-        );
+                deploy(vertx, new TcpClientVerticle()))
+                .compose(s -> deploy(vertx, new HttpServerVerticle()))
+                .setHandler(s -> {
+                            if (s.succeeded()) {
+                                LOGGER.info("All verticles started successfully");
+                            } else {
+                                LOGGER.error("Failed to deploy all verticles", s.cause());
+                            }
+                        }
+                );
     }
 }
