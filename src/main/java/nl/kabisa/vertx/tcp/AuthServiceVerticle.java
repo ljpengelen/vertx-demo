@@ -39,7 +39,7 @@ public class AuthServiceVerticle extends AbstractVerticle {
                 socket.handler(buffer -> {
                     LOGGER.info("Received buffer: {}", buffer);
 
-                    if (Arrays.equals(buffer.getBytes(0, 4), SECRET_PASSWORD)) {
+                    if (buffer.length() >= 4 && Arrays.equals(buffer.getBytes(0, 4), SECRET_PASSWORD)) {
                         vertx.sharedData().<String, Boolean> getAsyncMap(AUTHENTICATED_CLIENTS_MAP, asyncMap -> {
                             if (asyncMap.succeeded()) {
                                 var map = asyncMap.result();
