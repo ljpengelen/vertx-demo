@@ -9,6 +9,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.NetClient;
 
 public class TcpClientVerticle extends AbstractVerticle {
@@ -21,7 +22,7 @@ public class TcpClientVerticle extends AbstractVerticle {
     private NetClient authClient;
     private NetClient echoClient;
 
-    private void handleEvent(Message<Buffer> event) {
+    private void handleEvent(Message<JsonObject> event) {
         authClient.connect(3001, "localhost", asyncAuthSocket -> {
             if (asyncAuthSocket.succeeded()) {
                 var authSocket = asyncAuthSocket.result();
@@ -45,7 +46,7 @@ public class TcpClientVerticle extends AbstractVerticle {
                                         event.fail(500, "Unexpected response from echo service");
                                     }
                                 });
-                                echoSocket.write(Buffer.buffer(Bytes.concat(id, event.body().getBytes())));
+                                echoSocket.write(Buffer.buffer(Bytes.concat(id, event.body().getString("body").getBytes())));
                             } else {
                                 String errorMessage = "Unable to obtain socket for echo service";
                                 LOGGER.error(errorMessage, asyncEchoSocket.cause());

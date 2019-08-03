@@ -5,9 +5,9 @@ import org.apache.logging.log4j.Logger;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.ReplyException;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.json.JsonObject;
 import nl.kabisa.vertx.tcp.TcpClientVerticle;
 
 public class HttpServerVerticle extends AbstractVerticle {
@@ -25,11 +25,14 @@ public class HttpServerVerticle extends AbstractVerticle {
             LOGGER.info("Incoming request for path: {}", request.path());
 
             request.bodyHandler(buffer -> {
-                var requestBuffer = buffer;
+                var requestObject = new JsonObject();
                 if (buffer.length() == 0) {
-                    requestBuffer = Buffer.buffer("Hello world!");
+                    requestObject.put("body", "Hello world!");
+                } else {
+                    requestObject.put("body", buffer.toString());
                 }
-                vertx.eventBus().send(TcpClientVerticle.REQUEST_ADDRESS, requestBuffer, reply -> {
+
+                vertx.eventBus().send(TcpClientVerticle.REQUEST_ADDRESS, requestObject, reply -> {
                     if (reply.succeeded()) {
                         request.response().end(reply.result().body().toString());
                     } else {
