@@ -18,6 +18,7 @@ public class ScreamingEchoServiceVerticle extends AbstractVerticle {
 
     private static final Buffer NOK = Buffer.buffer(new byte[] { 0 });
     private static final byte[] OK = { 1 };
+    private static final Buffer FAILURE = Buffer.buffer(new byte[] { 0 });
 
     @Override
     public void start(Future<Void> startFuture) {
@@ -36,19 +37,19 @@ public class ScreamingEchoServiceVerticle extends AbstractVerticle {
                             map.get(id, asyncAuthenticated -> {
                                 if (asyncAuthenticated.succeeded()) {
                                     var authenticated = asyncAuthenticated.result();
-                                    if (authenticated) {
+                                    if (Boolean.TRUE.equals(authenticated)) {
                                         socket.write(Buffer.buffer(Bytes.concat(OK, buffer.getString(36, buffer.length()).toUpperCase().getBytes())));
                                     } else {
                                         socket.write(NOK);
                                     }
                                 } else {
                                     LOGGER.error("Unable to get value for {} from map {}", id, AUTHENTICATED_CLIENTS_MAP, asyncAuthenticated.cause());
-                                    socket.write(NOK);
+                                    socket.write(FAILURE);
                                 }
                             });
                         } else {
                             LOGGER.error("Unable to get map {}", AUTHENTICATED_CLIENTS_MAP, asyncMap.cause());
-                            socket.write(NOK);
+                            socket.write(FAILURE);
                         }
                     });
                 }));
