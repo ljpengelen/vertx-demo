@@ -42,6 +42,6 @@ Each verticle has a `start` and a `stop` method.
 The `start` method is called when the verticle is deployed,
 and the `stop` method is called when the verticle is undeployed.
 In this example, we only provide an implementation for the `start` method and reuse the (empty) `stop` method of the class `AbstractVerticle`.
-When an instance of `HelloworldVerticle` is deployed, an HTTP server is created, which listens for incoming requests of port `8080`.
+When an instance of `HelloworldVerticle` is deployed, an HTTP server is created, which listens for incoming requests on port `8080`.
 Each request is answered with the plain-text response "Hello world".
 
