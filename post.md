@@ -63,3 +63,56 @@ The Vert.x developers took at it as their responsibility to ensure that no Vert.
 As a result, a well-designed Vert.x application can handle a large amount of events using only a few threads,
 ultimately making such an application *responsive*.
 
+## Message driven
+
+The example below shows an application consisting of two verticles.
+This example illustrates Vert.x's event bus.
+The event bus allows you to broadcast messages to any interested receiver and to send messages to a single receiver registered for a given address.
+The broadcasted messages end up at each of the receivers registered for an address,
+whereas the messages sent directly end up at a single receiver.
+
+In the example below, instances of the `WorldVerticle` are registered as consumers on the address `WORLD`.
+Instances of the `HelloVerticle` send messages to this address.
+
+```java
+package nl.kabisa.vertx;
+
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerOptions;
+
+public class Application {
+
+    private static class HelloVerticle extends AbstractVerticle {
+
+        @Override
+        public void start() {
+            var options = new HttpServerOptions().setPort(8080);
+            vertx.createHttpServer(options)
+                    .requestHandler(request ->
+                            vertx.eventBus().send("WORLD", "Hello", ar -> {
+                                if (ar.succeeded()) {
+                                    request.response().end((String) ar.result().body());
+                                } else {
+                                    request.response().setStatusCode(500).end(ar.cause().getMessage());
+                                }
+                            }))
+                    .listen();
+        }
+    }
+
+    private static class WorldVerticle extends AbstractVerticle {
+
+        @Override
+        public void start() {
+            vertx.eventBus().consumer("WORLD", event -> event.reply(event.body() + " world"));
+        }
+    }
+
+    public static void main(String[] args) {
+        var vertx = Vertx.vertx();
+        vertx.deployVerticle(new WorldVerticle());
+        vertx.deployVerticle(new HelloVerticle());
+    }
+}
+```
