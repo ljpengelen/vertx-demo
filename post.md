@@ -14,7 +14,8 @@ Before we consider what that means in the context of Vert.x, let's look at one o
 ```java
 package nl.kabisa.vertx;
 
-import io.vertx.core.*;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerOptions;
 
 public class Application {
@@ -22,7 +23,7 @@ public class Application {
     private static class HelloWorldVerticle extends AbstractVerticle {
 
         @Override
-        public void start(Future<Void> startFuture) {
+        public void start() {
             var options = new HttpServerOptions().setPort(8080);
             vertx.createHttpServer(options)
                     .requestHandler(request -> request.response().end("Hello world"))
