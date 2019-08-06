@@ -66,13 +66,14 @@ ultimately making such an application *responsive*.
 ## Message driven
 
 The example below shows an application consisting of two verticles.
-This example illustrates Vert.x's event bus.
-The event bus allows you to broadcast messages to any interested receiver and to send messages to a single receiver registered for a given address.
+It illustrates Vert.x's event bus.
+The event bus allows you to broadcast messages to any interested receiver as well as send messages to a single receiver.
 The broadcasted messages end up at each of the receivers registered for an address,
 whereas the messages sent directly end up at a single receiver.
 
 In the example below, instances of the `WorldVerticle` are registered as consumers on the address `WORLD`.
 Instances of the `HelloVerticle` send messages to this address.
+If we would deploy multiple `WordVerticles`, each of them would receive messages in turn.
 
 ```java
 package nl.kabisa.vertx;
