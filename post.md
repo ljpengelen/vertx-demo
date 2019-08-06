@@ -63,7 +63,7 @@ The Vert.x developers took at it as their responsibility to ensure that no Vert.
 As a result, a well-designed Vert.x application can handle a large amount of events using only a few threads,
 ultimately making such an application *responsive*.
 
-## Message driven
+## Message driven and resilient
 
 The example below shows an application consisting of two verticles.
 It illustrates Vert.x's event bus.
@@ -117,3 +117,17 @@ public class Application {
     }
 }
 ```
+
+The example shows that the sender of a message can specify an optional reply handler.
+The reply is provided to the handler in the form of an asynchronous result, which can either be succeeded or failed.
+If it succeeded, the actual reply message is available (`ar.result()`, as shown in the example).
+Otherwise, a throwable is available that indicates what went wrong (`ar.cause()`, also shown in the example).
+
+
+I probably don't need to tell you that this covers the *message driven* part of the Reactive Manifesto.
+Clearly, verticles can communicate via asynchronous message passing.
+
+In a way, the example also illustrates *resilience*.
+If we would deploy multiple `WorldVerticles` and one of them would fail, the others would just keep on doing their jobs on their own thread.
+Additionally, the example shows how Vert.x reminds you to think about gracefully handling failure when implementing a handler.
+Many handlers receive their input in the form of an asynchronous result, which can always be succeeded or failed, as discussed above.
