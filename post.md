@@ -277,8 +277,8 @@ public class Application {
 
         vertx.deployVerticle(new AuthServiceVerticle(), authServiceDeployment -> {
             if (authServiceDeployment.succeeded()) {
-                vertx.deployVerticle(new ScreamingEchoServiceVerticle(), ar -> {
-                    if (ar.succeeded()) {
+                vertx.deployVerticle(new ScreamingEchoServiceVerticle(), screamingEchoServiceDeployment -> {
+                    if (screamingEchoServiceDeployment.succeeded()) {
                         vertx.deployVerticle(new TcpClientVerticle(), tcpClientDeployment -> {
                             if (tcpClientDeployment.succeeded()) {
                                 vertx.deployVerticle(new HttpServerVerticle(), httpServerDeployment ->
