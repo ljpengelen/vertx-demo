@@ -248,7 +248,7 @@ Vert.x's answer to callback hell are *futures*.
 A future represents the result of some computation that is potentially available at some later stage.
 A future can either succeed or fail.
 When it succeed, its result will be available.
-When it fail, a throwable representing the cause of failure will be available.
+When it fails, a throwable representing the cause of failure will be available.
 You can set a handler for a future, which will be called with the asynchronous result when the future has succeeded or failed.
 There are different ways to combine futures into a single future.
 
