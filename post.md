@@ -241,6 +241,8 @@ You could argue that this isn't the most beautiful piece of code ever written, a
 
 (If you want to see the callback-based implementation of the rest of this application, by my guest: [https://github.com/ljpengelen/vertx-demo/tree/971e33e4475a18fb7239d716a8c6d05369442b8a](https://github.com/ljpengelen/vertx-demo/tree/971e33e4475a18fb7239d716a8c6d05369442b8a).)
 
+## Futures
+
 JavaScript's answer to callback hell were *promises*.
 Vert.x's answer to callback hell are *futures*.
 A future represents the result of some computation that is potentially available at some later stage.
