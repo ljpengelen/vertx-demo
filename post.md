@@ -48,11 +48,11 @@ Each request is answered with the plain-text response "Hello world".
 
 ## Responsive
 
-By default, Vert.x creates two threads per CPU core for verticles like the one above.
+By default, Vert.x creates two threads per CPU core to deploy verticles like the one above.
 Each verticle is assigned to a specific thread, and all handlers of that verticle are executed on that thread sequentially.
 For the example above, this means that the handler `request -> request.response().end("Hello world")` is always executed on the same thread.
  
-Because the handlers for a given verticle are never executed concurrently, you don't have to worry about locking or atomicity of actions.
+Because the handlers for a given verticle are never executed concurrently, you don't have to worry about locking or the atomicity of actions relevant for a single verticle.
 Multiple instances of the same verticle, however, *can* have their handlers executed at the same time.
 In fact, this holds for any two verticles.
 This means that if two verticles share a resource, you might still have to worry about concurrent access to that resource.
@@ -67,7 +67,7 @@ ultimately making such an application *responsive*.
 
 The example below shows an application consisting of two verticles.
 It illustrates Vert.x's event bus.
-The event bus allows you to broadcast messages to any interested receiver as well as send messages to a single receiver.
+The event bus allows you to broadcast messages to any number of interested receivers as well as send messages to a single receiver.
 The broadcasted messages end up at each of the receivers registered for an address,
 whereas the messages sent directly end up at a single receiver.
 
@@ -122,7 +122,6 @@ The example shows that the sender of a message can specify an optional reply han
 The reply is provided to the handler in the form of an asynchronous result, which can either be succeeded or failed.
 If it succeeded, the actual reply message is available (`ar.result()`, as shown in the example).
 Otherwise, a throwable is available that indicates what went wrong (`ar.cause()`, also shown in the example).
-
 
 I probably don't need to tell you that this covers the *message driven* part of the Reactive Manifesto.
 Clearly, verticles can communicate via asynchronous message passing.
