@@ -237,7 +237,7 @@ This verticle listens for messages on the address `tcp.client.request`.
 Each time a message arrives, the verticle authenticates itself with some service listening on port 3001 by exchanging some bytes.
 It uses the token it receives to communicate with some other service listening on port 3002.
 In the end, it replies to the initial message with a buffer containing an array of bytes received from the service listening on port 3002.
-Some would argue that this isn't the most beautiful piece of code ever written, although beauty lies in the eyes of the beholder. 
+You could argue that this isn't the most beautiful piece of code ever written, although beauty lies in the eyes of the beholder. 
 
 (If you want to see the callback-based implementation of the rest of this application, by my guest: [https://github.com/ljpengelen/vertx-demo/tree/971e33e4475a18fb7239d716a8c6d05369442b8a](https://github.com/ljpengelen/vertx-demo/tree/971e33e4475a18fb7239d716a8c6d05369442b8a).)
 
@@ -245,7 +245,7 @@ JavaScript's answer to callback hell were *promises*.
 Vert.x's answer to callback hell are *futures*.
 A future represents the result of some computation that is potentially available at some later stage.
 A future can either succeed or fail.
-When it succeed, it's result will be available.
+When it succeed, its result will be available.
 When it fail, a throwable representing the cause of failure will be available.
 You can set a handler for a future, which will be called with the asynchronous result when the future has succeeded or failed.
 There are different ways to combine futures into a single future.
