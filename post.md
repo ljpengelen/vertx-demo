@@ -250,7 +250,7 @@ A future can either succeed or fail.
 When it succeed, its result will be available.
 When it fails, a throwable representing the cause of failure will be available.
 You can set a handler for a future, which will be called with the asynchronous result when the future has succeeded or failed.
-There are different ways to combine futures into a single future.
+There are different ways to combine futures into a single future, which we'll illustrate with an example.
 
 Suppose you want to deploy a number of verticles, and some of these verticles should only be deployed once others have been deployed successfully.
 Vert.x offers a deploy method with a callback, which is called when the deployment has finished.
