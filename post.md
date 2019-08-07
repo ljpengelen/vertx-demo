@@ -136,3 +136,9 @@ Many handlers receive their input in the form of an asynchronous result, which c
 Finally, and perhaps paradoxically, because of the best-effort delivery of messages via the event bus, you're also forced to consciously deal with failure related to lost messages.
 If it's paramount that a given type of message is always processed, you need to implement acknowledgements and retries.
 
+## Elasticity
+
+As mentioned above, Vert.x creates two threads per available CPU core to deploy verticles like the ones shown above.
+If you need to handle more events (such as HTTP requests, for example), you can run your app on a machine with more CPU cores and reap the benefits of more concurrency, without any additional programming or configuration changes.
+Additionally, it's possible to scale individual components of your application by simply deploying more or fewer verticles of a certain type.
+That sounds pretty elastic to me.
