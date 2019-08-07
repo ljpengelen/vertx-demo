@@ -75,6 +75,9 @@ In the example below, instances of the `WorldVerticle` are registered as consume
 Instances of the `HelloVerticle` send messages to this address.
 If we would deploy multiple `WordVerticles`, each of them would receive messages in turn.
 
+It's possible to send messages in a number of different forms, including strings, booleans, JSON objects, and JSON arrays.
+Vert.x best-effort delivery, which means that message can get lost, but are never thrown away intentionally. 
+
 ```java
 package nl.kabisa.vertx;
 
@@ -130,3 +133,6 @@ In a way, the example also illustrates *resilience*.
 If we would deploy multiple `WorldVerticles` and one of them would fail, the others would just keep on doing their jobs on their own thread.
 Additionally, the example shows how Vert.x reminds you to think about gracefully handling failure when implementing a handler.
 Many handlers receive their input in the form of an asynchronous result, which can always be succeeded or failed, as discussed above.
+Finally, and perhaps paradoxically, because of the best-effort delivery of messages via the event bus, you're also forced to consciously deal with failure related to lost messages.
+If it's paramount that a given type of message is always processed, you need to implement acknowledgements and retries.
+
