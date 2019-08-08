@@ -461,10 +461,15 @@ In my opinion, it's clearer what each part of the implementation is responsible 
 
 ## Conclusion
 
-Once you get the hang of it, developing applications with Vert.x is quite enjoyable.
-As with all forms of asynchronous programming, however, I sometimes find myself in slightly annoying situations where a synchronous approach would be much easier to implement and reason about.
-The question is whether you're willing to put up with a little extra work to enjoy the potential benefits of reactive systems.
+By looking at these few examples, you've seen part of what Vert.x has to offer.
+However, it doesn't end with what's described here.
+[Vert.x's documentation page](https://vertx.io/docs/) offers a comprehensive list of books, manuals, and API docs that covers the complete toolkit.
+There's also a page listing [learning materials](http://vertx.io/materials/) that should help you get started.
 
 If you're interested in the toolkit, you should definitely play around with the example application available at [https://github.com/ljpengelen/vertx-demo/](https://github.com/ljpengelen/vertx-demo/).
 Besides a few other verticles apart from those described here,
 there are a number of tests that should give you an impression of what Vert.x has to offer.
+
+Once you get the hang of it, developing applications with Vert.x is quite enjoyable.
+As with all forms of asynchronous programming, however, I sometimes find myself in slightly annoying situations where a synchronous approach would be much easier to implement and reason about.
+The question is whether you're willing to put up with a little extra work to enjoy the potential benefits of reactive systems.
