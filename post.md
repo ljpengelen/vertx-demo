@@ -294,7 +294,7 @@ public class Application {
 ```
 
 This isn't pretty at all, even without the additional code you need to deal with possible failures.
-Also, we're deploying the verticles one at a time, where we actually only want to deploy the `HttpServerVerticle` once the others have been deployed successfully.
+Also, we're deploying the verticles one at a time, while we actually want to deploy the `HttpServerVerticle` once the others have been deployed successfully.
 
 Rewriting this example using futures leads to the following:
 
