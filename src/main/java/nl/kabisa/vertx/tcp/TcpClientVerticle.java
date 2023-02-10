@@ -1,5 +1,6 @@
 package nl.kabisa.vertx.tcp;
 
+import io.vertx.core.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,56 +26,56 @@ public class TcpClientVerticle extends AbstractVerticle {
     private NetClient echoClient;
 
     private Future<NetSocket> connectToAuthService() {
-        Future<NetSocket> future = Future.future();
+        var promise = Promise.<NetSocket>promise();
 
-        authClient.connect(3001, "localhost", future);
+        authClient.connect(3001, "localhost", promise);
 
-        return future;
+        return promise.future();
     }
 
     private Future<Buffer> authenticate(NetSocket authSocket) {
-        Future<Buffer> future = Future.future();
+        var promise = Promise.<Buffer>promise();
 
         authSocket.handler(authBuffer -> {
             if (authBuffer.getByte(0) == 0) {
-                future.fail("Invalid credentials");
+                promise.fail("Invalid credentials");
             } else if (authBuffer.getByte(0) == 2) {
-                future.fail("Unexpected error");
+                promise.fail("Unexpected error");
             } else if (authBuffer.getByte(0) == 1) {
-                future.complete(authBuffer.getBuffer(1, authBuffer.length()));
+                promise.complete(authBuffer.getBuffer(1, authBuffer.length()));
             } else {
-                future.fail("Unexpected response from authentication service");
+                promise.fail("Unexpected response from authentication service");
             }
         });
 
         authSocket.write(Buffer.buffer(new byte[] { 1, 2, 3, 4 }));
 
-        return future;
+        return promise.future();
     }
 
     private Future<NetSocket> connectToEchoClient() {
-        Future<NetSocket> future = Future.future();
+        var promise = Promise.<NetSocket>promise();
 
-        echoClient.connect(3002, "localhost", future);
+        echoClient.connect(3002, "localhost", promise);
 
-        return future;
+        return promise.future();
     }
 
     private Future<Buffer> forwardToEchoClient(NetSocket echoSocket, Buffer token, String input) {
-        Future<Buffer> future = Future.future();
+        var promise = Promise.<Buffer>promise();
 
         echoSocket.handler(echoBuffer -> {
             if (echoBuffer.getByte(0) == 0) {
-                future.fail("Unauthenticated");
+                promise.fail("Unauthenticated");
             } else if (echoBuffer.getByte(0) == 1) {
-                future.complete(echoBuffer.getBuffer(1, echoBuffer.length()));
+                promise.complete(echoBuffer.getBuffer(1, echoBuffer.length()));
             } else {
-                future.fail("Unexpected response from echo service");
+                promise.fail("Unexpected response from echo service");
             }
         });
         echoSocket.write(Buffer.buffer(Bytes.concat(token.getBytes(), input.getBytes())));
 
-        return future;
+        return promise.future();
     }
 
     private void handleEvent(Message<JsonObject> event) {
@@ -82,7 +83,7 @@ public class TcpClientVerticle extends AbstractVerticle {
                 .compose(this::authenticate)
                 .compose(token -> connectToEchoClient()
                         .compose(socket -> forwardToEchoClient(socket, token, event.body().getString("body"))))
-                .setHandler(asyncBuffer -> {
+                .andThen(asyncBuffer -> {
                     if (asyncBuffer.succeeded()) {
                         event.reply(asyncBuffer.result());
                     } else {

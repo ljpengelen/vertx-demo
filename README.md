@@ -6,7 +6,7 @@ Run the app, and execute `curl localhost:8080 -d "no touching"` to see it in act
 
 ## Prerequisites
 
-For development, you need [Java 11](https://openjdk.java.net/projects/jdk/11/).
+For development, you need [Java 17](https://openjdk.org/projects/jdk/17/).
 
 ## Running tests
 

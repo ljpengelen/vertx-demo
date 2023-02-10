@@ -21,7 +21,7 @@ class HttpServerVerticleTest {
     public void setUp(Vertx vertx, VertxTestContext vertxTestContext) {
         webClient = WebClient.create(vertx);
 
-        vertx.deployVerticle(httpServerVerticle, vertxTestContext.completing());
+        vertx.deployVerticle(httpServerVerticle, vertxTestContext.succeedingThenComplete());
     }
 
     @Test

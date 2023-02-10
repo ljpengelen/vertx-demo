@@ -25,7 +25,7 @@ class AuthServiceVerticleTest {
     public void setUp(Vertx vertx, VertxTestContext vertxTestContext) {
         netClient = vertx.createNetClient();
 
-        vertx.deployVerticle(authServiceVerticle, vertxTestContext.completing());
+        vertx.deployVerticle(authServiceVerticle, vertxTestContext.succeedingThenComplete());
     }
 
     @Test

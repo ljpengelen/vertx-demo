@@ -24,7 +24,7 @@ class ScreamingEchoServiceVerticleTest {
     public void setUp(Vertx vertx, VertxTestContext vertxTestContext) {
         netClient = vertx.createNetClient();
 
-        vertx.deployVerticle(screamingEchoServiceVerticle, vertxTestContext.completing());
+        vertx.deployVerticle(screamingEchoServiceVerticle, vertxTestContext.succeedingThenComplete());
     }
 
     @Test

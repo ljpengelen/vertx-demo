@@ -2,6 +2,7 @@ package nl.kabisa.vertx.tcp;
 
 import static nl.kabisa.vertx.tcp.AuthServiceVerticle.AUTHENTICATED_CLIENTS_MAP;
 
+import io.vertx.core.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,33 +23,33 @@ public class ScreamingEchoServiceVerticle extends AbstractVerticle {
     private static final Buffer FAILURE = Buffer.buffer(new byte[] { 0 });
 
     private Future<Boolean> validateToken(String token) {
-        Future<Boolean> future = Future.future();
+        var promise = Promise.<Boolean>promise();
 
         vertx.sharedData().<String, Boolean> getAsyncMap(AUTHENTICATED_CLIENTS_MAP, asyncMap -> {
             if (asyncMap.succeeded()) {
                 var map = asyncMap.result();
                 map.get(token, asyncAuthenticated -> {
                     if (asyncAuthenticated.succeeded()) {
-                        future.complete(asyncAuthenticated.result());
+                        promise.complete(asyncAuthenticated.result());
                     } else {
                         LOGGER.error("Unable to get value for {} from map {}", token, AUTHENTICATED_CLIENTS_MAP, asyncAuthenticated.cause());
-                        future.fail(asyncAuthenticated.cause());
+                        promise.fail(asyncAuthenticated.cause());
                     }
                 });
             } else {
                 LOGGER.error("Unable to get map {}", AUTHENTICATED_CLIENTS_MAP, asyncMap.cause());
-                future.fail(asyncMap.cause());
+                promise.fail(asyncMap.cause());
             }
         });
 
-        return future;
+        return promise.future();
     }
 
     private void handleRequest(NetSocket socket, Buffer buffer) {
         LOGGER.info("Received buffer: {}", buffer);
 
         var id = buffer.getString(0, 36);
-        validateToken(id).setHandler(asyncValidationResult -> {
+        validateToken(id).andThen(asyncValidationResult -> {
             if (asyncValidationResult.succeeded()) {
                 var isValid = asyncValidationResult.result();
                 if (Boolean.TRUE.equals(isValid)) {
@@ -63,7 +64,7 @@ public class ScreamingEchoServiceVerticle extends AbstractVerticle {
     }
 
     @Override
-    public void start(Future<Void> startFuture) {
+    public void start(Promise<Void> startPromise) {
         LOGGER.info("Starting");
 
         var options = new NetServerOptions().setPort(3002);
@@ -76,10 +77,10 @@ public class ScreamingEchoServiceVerticle extends AbstractVerticle {
         netServer.listen(ar -> {
             if (ar.succeeded()) {
                 LOGGER.debug("Listening for connections on port {}", netServer.actualPort());
-                startFuture.complete();
+                startPromise.complete();
             } else {
                 LOGGER.error("Failed to listen for connections", ar.cause());
-                startFuture.fail(ar.cause());
+                startPromise.fail(ar.cause());
             }
         });
     }

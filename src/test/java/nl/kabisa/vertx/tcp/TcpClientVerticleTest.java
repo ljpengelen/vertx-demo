@@ -30,7 +30,7 @@ class TcpClientVerticleTest {
         authService = vertx.createNetServer();
         echoService = vertx.createNetServer();
 
-        vertx.deployVerticle(tcpClientVerticle, vertxTestContext.completing());
+        vertx.deployVerticle(tcpClientVerticle, vertxTestContext.succeedingThenComplete());
     }
 
     @Test
@@ -43,7 +43,7 @@ class TcpClientVerticleTest {
                 }));
         authService.listen(3001, "localhost");
 
-        vertx.eventBus().send(REQUEST_ADDRESS, INPUT_OBJECT, reply -> {
+        vertx.eventBus().request(REQUEST_ADDRESS, INPUT_OBJECT).andThen(reply -> {
             vertxTestContext.verify(() -> assertThat(reply.failed()).isTrue());
             vertxTestContext.completeNow();
         });
@@ -86,7 +86,7 @@ class TcpClientVerticleTest {
                 }));
         echoService.listen(3002, "localhost");
 
-        vertx.eventBus().send(REQUEST_ADDRESS, INPUT_OBJECT, reply -> {
+        vertx.eventBus().request(REQUEST_ADDRESS, INPUT_OBJECT).andThen(reply -> {
             vertxTestContext.verify(() -> {
                 assertThat(reply.succeeded()).isTrue();
                 assertThat(reply.result().body()).isEqualTo(Buffer.buffer("output"));

@@ -1,5 +1,6 @@
 package nl.kabisa.vertx.http;
 
+import io.vertx.core.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,19 +28,19 @@ public class HttpServerVerticle extends AbstractVerticle {
     }
 
     private Future<String> forwardRequest(JsonObject requestObject) {
-        Future<String> future = Future.future();
+        var promise = Promise.<String>promise();
 
-        vertx.eventBus().send(TcpClientVerticle.REQUEST_ADDRESS, requestObject, reply -> {
+        vertx.eventBus().request(TcpClientVerticle.REQUEST_ADDRESS, requestObject).andThen(reply -> {
             if (reply.succeeded()) {
-                future.complete(reply.result().body().toString());
+                promise.complete(reply.result().body().toString());
             } else {
                 var cause = reply.cause();
                 LOGGER.error("Unable to receive response from TCP client", cause);
-                future.fail(cause);
+                promise.fail(cause);
             }
         });
 
-        return future;
+        return promise.future();
     }
 
     private void handleRequest(HttpServerRequest request) {
@@ -48,7 +49,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         request.bodyHandler(buffer -> {
             var requestObject = requestObject(buffer);
 
-            forwardRequest(requestObject).setHandler(asyncResponse -> {
+            forwardRequest(requestObject).andThen(asyncResponse -> {
                 if (asyncResponse.succeeded()) {
                     request.response().end(asyncResponse.result());
                 } else {
@@ -59,7 +60,7 @@ public class HttpServerVerticle extends AbstractVerticle {
     }
 
     @Override
-    public void start(Future<Void> startFuture) {
+    public void start(Promise<Void> startPromise) {
         LOGGER.info("Starting");
 
         var options = new HttpServerOptions().setPort(8080);
@@ -69,9 +70,9 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         server.listen(ar -> {
             if (ar.succeeded()) {
-                startFuture.complete();
+                startPromise.complete();
             } else {
-                startFuture.fail(ar.cause());
+                startPromise.fail(ar.cause());
             }
         });
     }

@@ -3,6 +3,7 @@ package nl.kabisa.vertx.tcp;
 import java.util.Arrays;
 import java.util.UUID;
 
+import io.vertx.core.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,7 +31,7 @@ public class AuthServiceVerticle extends AbstractVerticle {
     }
 
     private Future<String> generateToken() {
-        Future<String> future = Future.future();
+        var promise = Promise.<String>promise();
 
         vertx.sharedData().<String, Boolean> getAsyncMap(AUTHENTICATED_CLIENTS_MAP, asyncMap -> {
             if (asyncMap.succeeded()) {
@@ -38,26 +39,26 @@ public class AuthServiceVerticle extends AbstractVerticle {
                 var id = nextId();
                 map.put(id, true, putResult -> {
                     if (putResult.succeeded()) {
-                        future.complete(id);
+                        promise.complete(id);
                     } else {
                         LOGGER.error("Failed to store ({}, {}}) in map {}", id, true, AUTHENTICATED_CLIENTS_MAP, putResult.cause());
-                        future.fail(putResult.cause());
+                        promise.fail(putResult.cause());
                     }
                 });
             } else {
                 LOGGER.error("Failed to get async map {}", AUTHENTICATED_CLIENTS_MAP, asyncMap.cause());
-                future.fail(asyncMap.cause());
+                promise.fail(asyncMap.cause());
             }
         });
 
-        return future;
+        return promise.future();
     }
 
     private void handleRequest(NetSocket socket, Buffer buffer) {
         LOGGER.info("Received buffer: {}", buffer);
 
         if (buffer.length() >= 4 && Arrays.equals(buffer.getBytes(0, 4), SECRET_PASSWORD)) {
-            generateToken().setHandler(asyncToken -> {
+            generateToken().andThen(asyncToken -> {
                 if (asyncToken.succeeded()) {
                     socket.write(Buffer.buffer(Bytes.concat(OK, asyncToken.result().getBytes())));
                 } else {
@@ -70,7 +71,7 @@ public class AuthServiceVerticle extends AbstractVerticle {
     }
 
     @Override
-    public void start(Future<Void> startFuture) {
+    public void start(Promise<Void> startPromise) {
         LOGGER.info("Starting");
 
         var options = new NetServerOptions().setPort(3001);
@@ -83,10 +84,10 @@ public class AuthServiceVerticle extends AbstractVerticle {
         netServer.listen(ar -> {
             if (ar.succeeded()) {
                 LOGGER.debug("Listening for connections on port {}", netServer.actualPort());
-                startFuture.complete();
+                startPromise.complete();
             } else {
                 LOGGER.error("Failed to listen for connections", ar.cause());
-                startFuture.fail(ar.cause());
+                startPromise.fail(ar.cause());
             }
         });
     }

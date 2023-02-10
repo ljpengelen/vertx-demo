@@ -15,7 +15,7 @@ public class FutureTest {
 
     @Test
     public void testSucceeded(VertxTestContext testContext) {
-        Future.succeededFuture("one").setHandler(ar -> {
+        Future.succeededFuture("one").andThen(ar -> {
             testContext.verify(() -> {
                 assertTrue(ar.succeeded());
                 assertEquals("one", ar.result());
@@ -26,7 +26,7 @@ public class FutureTest {
 
     @Test
     public void testFailed(VertxTestContext testContext) {
-        Future.failedFuture("one").setHandler(ar -> {
+        Future.failedFuture("one").andThen(ar -> {
             testContext.verify(() -> {
                 assertTrue(ar.failed());
                 assertEquals("one", ar.cause().getMessage());
@@ -40,7 +40,7 @@ public class FutureTest {
         Future.succeededFuture("one").compose(r -> {
             testContext.verify(() -> assertEquals("one", r));
             return Future.succeededFuture("two");
-        }).setHandler(ar -> {
+        }).andThen(ar -> {
             testContext.verify(() -> {
                 assertTrue(ar.succeeded());
                 assertEquals("two", ar.result());
@@ -54,7 +54,7 @@ public class FutureTest {
         Future.failedFuture("one").compose(r -> {
             testContext.failNow(new RuntimeException());
             return Future.succeededFuture("two");
-        }).setHandler(ar -> {
+        }).andThen(ar -> {
             testContext.verify(() -> {
                 assertTrue(ar.failed());
                 assertEquals("one", ar.cause().getMessage());
@@ -65,7 +65,7 @@ public class FutureTest {
 
     @Test
     public void testOtherwiseSucceeded(VertxTestContext testContext) {
-        Future.succeededFuture("one").otherwise(r -> "two").setHandler(ar -> {
+        Future.succeededFuture("one").otherwise(r -> "two").andThen(ar -> {
             testContext.verify(() -> {
                 assertTrue(ar.succeeded());
                 assertEquals("one", ar.result());
@@ -76,7 +76,7 @@ public class FutureTest {
 
     @Test
     public void testOtherwiseFailed(VertxTestContext testContext) {
-        Future.failedFuture("one").otherwise(t -> "two").setHandler(ar -> {
+        Future.failedFuture("one").otherwise(t -> "two").andThen(ar -> {
             testContext.verify(() -> {
                 assertTrue(ar.succeeded());
                 assertEquals("two", ar.result());
@@ -90,7 +90,7 @@ public class FutureTest {
         Future.succeededFuture("one").recover(t -> {
             testContext.failNow(new RuntimeException());
             return Future.succeededFuture("two");
-        }).setHandler(ar -> {
+        }).andThen(ar -> {
             testContext.verify(() -> {
                 assertTrue(ar.succeeded());
                 assertEquals("one", ar.result());
@@ -104,7 +104,7 @@ public class FutureTest {
         Future.failedFuture("one").recover(t -> {
             testContext.verify(() -> assertEquals("one", t.getMessage()));
             return Future.succeededFuture("two");
-        }).setHandler(ar -> {
+        }).andThen(ar -> {
             testContext.verify(() -> {
                 assertTrue(ar.succeeded());
                 assertEquals("two", ar.result());
@@ -115,7 +115,7 @@ public class FutureTest {
 
     @Test
     public void testMap(VertxTestContext testContext) {
-        Future.succeededFuture("one").map(String::toUpperCase).setHandler(ar -> {
+        Future.succeededFuture("one").map(String::toUpperCase).andThen(ar -> {
             testContext.verify(() -> {
                 assertTrue(ar.succeeded());
                 assertEquals("ONE", ar.result());

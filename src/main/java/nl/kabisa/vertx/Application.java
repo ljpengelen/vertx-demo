@@ -13,29 +13,21 @@ public class Application {
 
     private static Vertx vertx;
 
-    private static Future<String> deploy(Vertx vertx, Verticle verticle) {
-        Future<String> future = Future.future();
-        vertx.deployVerticle(verticle, future);
-        return future;
-    }
-
     public static void main(String[] args) {
         LOGGER.info("Starting");
 
         vertx = Vertx.vertx();
 
-        CompositeFuture.all(
-                deploy(vertx, new AuthServiceVerticle()),
-                deploy(vertx, new ScreamingEchoServiceVerticle()),
-                deploy(vertx, new TcpClientVerticle()))
-                .compose(s -> deploy(vertx, new HttpServerVerticle()))
-                .setHandler(s -> {
-                            if (s.succeeded()) {
-                                LOGGER.info("All verticles started successfully");
-                            } else {
-                                LOGGER.error("Failed to deploy all verticles", s.cause());
-                            }
-                        }
-                );
+        CompositeFuture.all(vertx.deployVerticle(new AuthServiceVerticle()),
+                        vertx.deployVerticle(new ScreamingEchoServiceVerticle()),
+                        vertx.deployVerticle(new TcpClientVerticle()))
+                .compose(s -> vertx.deployVerticle(new HttpServerVerticle()))
+                .andThen(s -> {
+                    if (s.succeeded()) {
+                        LOGGER.info("All verticles started successfully");
+                    } else {
+                        LOGGER.error("Failed to deploy all verticles", s.cause());
+                    }
+                });
     }
 }
