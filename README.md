@@ -16,3 +16,15 @@ Execute `./mvnw test` to run the tests.
 
 Execute `./mvnw package -Dmaven.test.skip` to build a JAR.
 Run the app by executing `java -jar target/<NAME_OF_JAR>.jar`.
+
+## Creating a native image
+
+Execute the following command to create a native image:
+
+```
+native-image -jar target/<NAME_OF_JAR>.jar --no-fallback \
+--initialize-at-run-time=io.netty.handler.codec.compression.ZstdOptions \
+--initialize-at-build-time=org.slf4j \
+--initialize-at-build-time=ch.qos.logback \
+-H:ReflectionConfigurationFiles=reflect-config.json
+```
