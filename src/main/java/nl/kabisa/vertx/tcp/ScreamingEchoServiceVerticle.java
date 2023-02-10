@@ -3,8 +3,6 @@ package nl.kabisa.vertx.tcp;
 import static nl.kabisa.vertx.tcp.AuthServiceVerticle.AUTHENTICATED_CLIENTS_MAP;
 
 import io.vertx.core.Promise;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.google.common.primitives.Bytes;
 
@@ -13,10 +11,12 @@ import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScreamingEchoServiceVerticle extends AbstractVerticle {
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScreamingEchoServiceVerticle.class);
 
     private static final Buffer NOK = Buffer.buffer(new byte[] { 0 });
     private static final byte[] OK = { 1 };

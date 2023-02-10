@@ -1,8 +1,6 @@
 package nl.kabisa.vertx.http;
 
 import io.vertx.core.Promise;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -12,10 +10,12 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import nl.kabisa.vertx.tcp.TcpClientVerticle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpServerVerticle extends AbstractVerticle {
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpServerVerticle.class);
 
     private JsonObject requestObject(Buffer buffer) {
         var requestObject = new JsonObject();

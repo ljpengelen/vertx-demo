@@ -1,8 +1,6 @@
 package nl.kabisa.vertx.tcp;
 
 import io.vertx.core.Promise;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.google.common.primitives.Bytes;
 
@@ -14,12 +12,14 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TcpClientVerticle extends AbstractVerticle {
 
     public static final String REQUEST_ADDRESS = "tcp.client.request";
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger(TcpClientVerticle.class);
 
     private EventBus eventBus;
     private NetClient authClient;

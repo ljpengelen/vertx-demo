@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import io.vertx.core.Promise;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.google.common.primitives.Bytes;
 
@@ -14,12 +12,14 @@ import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthServiceVerticle extends AbstractVerticle {
 
     public static final String AUTHENTICATED_CLIENTS_MAP = "AUTHENTICATED_CLIENTS_MAP";
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthServiceVerticle.class);
 
     private static final byte[] SECRET_PASSWORD = { 1, 2, 3, 4 };
     private static final byte[] OK = new byte[] { 1 };

@@ -1,15 +1,14 @@
 package nl.kabisa.vertx;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import io.vertx.core.*;
 import nl.kabisa.vertx.http.HttpServerVerticle;
 import nl.kabisa.vertx.tcp.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Application {
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
     private static Vertx vertx;
 
