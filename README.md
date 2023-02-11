@@ -19,6 +19,19 @@ Run the app by executing `java -jar target/<NAME_OF_JAR>.jar`.
 
 ## Creating a native image
 
+Use the tracing agent to find out which code is reachable and capture this information in the form of configuration
+files by first executing the following command:
+
+```
+java -agentlib:native-image-agent=config-output-dir=graalvm-config -jar target/<NAME_OF_JAR>.jar
+```
+
+While the app is running, perform some requests to allow the tracing agent to do its work:
+
+```
+curl localhost:8080/non -d "no touching"
+```
+
 Execute the following command to create a native image:
 
 ```
@@ -26,5 +39,5 @@ native-image -jar target/<NAME_OF_JAR>.jar --no-fallback \
 --initialize-at-run-time=io.netty.handler.codec.compression.ZstdOptions \
 --initialize-at-build-time=org.slf4j \
 --initialize-at-build-time=ch.qos.logback \
--H:ReflectionConfigurationFiles=reflect-config.json
+-H:ReflectionConfigurationFiles=graalvm-config/reflect-config.json
 ```
